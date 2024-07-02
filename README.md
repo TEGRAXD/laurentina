@@ -1,9 +1,9 @@
 # Laurentina
 
-Laurentina is Audio controller and queue wrapper for Shoukaku and Discord.js to manage music playback.
+Laurentina is audio controller and queue wrapper for Shoukaku and Discord.js to manage music playback.
 
 ![](static/laurentina.png)
-
+> © Arknights
 
 ## Feature
 ### Audio controller and Queue Wrapper
