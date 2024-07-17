@@ -1,56 +1,70 @@
-import { EventEmitter, once } from "events";
+import { EventEmitter } from "events";
 import discord from "discord.js";
 import shoukaku from "shoukaku";
-import { LavalinkNode } from "./types/lavalink-node";
+import { LavalinkNode } from "./types/lavalink_node";
 
-class AudioSession extends EventEmitter {
+class AudioController extends EventEmitter {
+    private shoukaku: shoukaku.Shoukaku;
+    player: shoukaku.Player;
     guildID: discord.Snowflake;
     channelID: discord.Snowflake;
-    textChannel: discord.GuildTextBasedChannel | discord.TextBasedChannel;
-    queue: shoukaku.Track[];
+    textChannel: discord.Snowflake;
+    private queue: shoukaku.Track[];
     playing: boolean;
     currentTrack: shoukaku.Track | null;
-    player: shoukaku.Player;
     loop: "none" | "single" | "queue";
+    private timeout: NodeJS.Timeout | null;
 
     constructor(
+        shoukaku: shoukaku.Shoukaku,
         player: shoukaku.Player,
         guildID: discord.Snowflake,
         channelID: discord.Snowflake,
-        textChannel: discord.GuildTextBasedChannel | discord.TextBasedChannel
+        textChannelID: discord.Snowflake
     ) {
         super();
 
+        this.shoukaku = shoukaku;
+        this.player = player;
         this.guildID = guildID;
         this.channelID = channelID;
-        this.textChannel = textChannel;
+        this.textChannel = textChannelID;
         this.queue = [];
         this.playing = false;
         this.currentTrack = null;
-        this.player = player;
         this.loop = "none";
+        this.timeout = null;
+
+        this.startTimer();
     }
 
     /**
-     *
+     * Play a track or add a track to the queue
      * @param track The track to play
      * @returns Promised<void>
      */
-    async play(track: shoukaku.Track): Promise<void> {
+    async play(
+        track: shoukaku.Track,
+        playCallback?: (track: shoukaku.Track) => Promise<void>,
+        addToQueueCallback?: (track: shoukaku.Track) => Promise<void>
+    ): Promise<void> {
         if (!this.player) {
             throw new Error("No player available");
         }
 
-        this.add(track);
+        this.add(track, addToQueueCallback);
 
-        if (!this.playing) await this.playNext();
+        if (!this.playing) {
+            console.log("[Not Playing Anything] No track is currently playing.");
+            await this.playNext(playCallback);
+        }
     }
 
     /**
-     *
+     * Play the next track in the queue
      * @returns Promise<void>
      */
-    private async playNext(): Promise<void> {
+    private async playNext(callback?: (track: shoukaku.Track) => Promise<void>): Promise<void> {
         if (!this.player) {
             this.playing = false;
             throw new Error("No player available");
@@ -61,14 +75,22 @@ class AudioSession extends EventEmitter {
         if (!next) {
             this.playing = false;
             this.currentTrack = null;
+            this.startTimer();
             return;
         }
 
         this.playing = true;
         this.currentTrack = next;
 
+        this.clearTimer();
+
         try {
             await this.player.playTrack({ track: this.currentTrack.encoded });
+
+            console.log(`[Playing track] ${this.currentTrack.info.title}`);
+            console.log(`[Requested by] ${this.currentTrack.requestedBy}`);
+
+            if (callback) await callback(this.currentTrack);
 
             this.player.once("end", async () => {
                 switch (this.loop) {
@@ -83,28 +105,35 @@ class AudioSession extends EventEmitter {
                         this.queue.push(this.currentTrack);
                         break;
                 }
-            });
 
-            await this.playNext();
+                await this.playNext(callback);
+            });
         } catch (error) {
             console.error(error);
+            this.playing = false;
             this.currentTrack = null;
             await this.playNext(); // Move to the next track in case of error
         }
     }
 
     /**
-     *
+     * Search for a track
      * @param source The source to search from (e.g. ytsearch, scsearch, etc.)
      * @param query The query to search for
      * @returns Promise<shoukaku.Track[] | null>
      */
-    async search(source: string = "scsearch", query: string): Promise<shoukaku.Track[] | null> {
+    async search(source: string = "scsearch", query: string, limit: number = 10): Promise<shoukaku.Track[] | null> {
+        if (limit > 19) throw new Error("Limit cannot be more than 19");
+
         if (!this.player) {
             throw new Error("No player available");
         }
 
-        const res = await this.player?.node.rest.resolve(`${source}: ${query}`);
+        if (query.trim().length === 0) {
+            return null;
+        }
+
+        const res = await this.player.node.rest.resolve(`${source}: ${query}`);
 
         if (!res) {
             return null;
@@ -118,7 +147,7 @@ class AudioSession extends EventEmitter {
                 return [res.data];
             }
             case "search": {
-                return res.data;
+                return res.data.slice(0, limit);
             }
             case "playlist": {
                 return null;
@@ -134,41 +163,64 @@ class AudioSession extends EventEmitter {
     }
 
     /**
-     *
+     * Add a track to the queue
      * @param track The track to add to the queue
      * @returns void
      */
-    add(track: shoukaku.Track): void {
+    add(track: shoukaku.Track, callback?: (track: shoukaku.Track) => Promise<void>): void {
         console.log("[Pushing track to queue]");
+
         this.queue.push(track);
+
+        if (callback) callback(track);
+
         console.log(this.queue.map((t) => t.info.title));
-        // console.log(this.queue.length);
     }
 
+    /**
+     * Skip the current track
+     * @returns void
+     */
     skip() {
         if (this.player) {
             this.player.stopTrack();
         }
     }
 
+    /**
+     * Pause the current track
+     * @returns void
+     */
     pause() {
         if (this.player) {
             this.player.setPaused(true);
         }
     }
 
+    /**
+     * Resume the current track
+     * @returns void
+     */
     resume() {
         if (this.player) {
             this.player.setPaused(false);
         }
     }
 
+    /**
+     * Stop the player
+     * @returns void
+     */
     stop() {
         if (this.player) {
             this.player.stopTrack();
         }
     }
 
+    /**
+     * Toggle the loop mode
+     * @returns void
+     */
     toggleLoop() {
         switch (this.loop) {
             case "none":
@@ -183,26 +235,71 @@ class AudioSession extends EventEmitter {
         }
     }
 
+    /**
+     * Get the current queue
+     * @returns shoukaku.Track[]
+     */
     getQueue() {
         return this.queue;
     }
+
+    /**
+     * start the timer to leave the voice channel after 5 minutes of inactivity
+     * @returns void
+     */
+    private startTimer() {
+        if (this.timeout) return;
+
+        this.timeout = setTimeout(() => this.leaveChannel(), 5 * 60 * 1000);
+    }
+
+    /**
+     * Clear the timer
+     * @returns void
+     */
+    private clearTimer() {
+        console.log("[Clear timer]");
+        if (this.timeout) {
+            clearTimeout(this.timeout);
+            this.timeout = null;
+        }
+    }
+
+    /**
+     * Leave the voice channel
+     * @returns void
+     */
+    private async leaveChannel() {
+        this.clearTimer();
+        await this.shoukaku.leaveVoiceChannel(this.guildID);
+    }
 }
+
+export type { AudioController };
 
 class Laurentina {
     client: discord.Client;
     shoukaku: shoukaku.Shoukaku;
-    audioSessions: Map<string, AudioSession>;
+    private audioController: Map<string, AudioController>;
     constructor(client: discord.Client, shoukaku: shoukaku.Shoukaku, lavalinkNodes: LavalinkNode[]) {
         this.client = client;
         this.shoukaku = shoukaku;
-        this.audioSessions = new Map<string, AudioSession>();
+        this.audioController = new Map<string, AudioController>();
+
+        // Whether to resume a connection on disconnect to Lavalink (Server Side)
+        // Default: false
+        this.shoukaku.options.resume = true;
     }
 
     async join(
-        guildID: discord.Snowflake,
-        voiceChannelID: discord.Snowflake,
-        textChannel: discord.GuildTextBasedChannel | discord.TextBasedChannel
-    ): Promise<AudioSession> {
+        guildID?: discord.Snowflake,
+        voiceChannelID?: discord.Snowflake,
+        textChannelID?: discord.Snowflake
+    ): Promise<AudioController> {
+        if (!guildID) throw new Error("Guild ID is required");
+        if (!voiceChannelID) throw new Error("Voice Channel ID is required");
+        if (!textChannelID) throw new Error("Text Channel ID is required");
+
         let player = this.shoukaku.players.get(guildID);
 
         if (!player) {
@@ -214,27 +311,33 @@ class Laurentina {
             });
         }
 
-        let queue = this.getQueue(guildID);
+        let controller = this.getController(guildID);
 
-        if (!queue) {
-            queue = new AudioSession(player, guildID, voiceChannelID, textChannel);
-            this.audioSessions.set(guildID, queue);
+        if (!controller) {
+            controller = new AudioController(this.shoukaku, player, guildID, voiceChannelID, textChannelID);
+            this.audioController.set(guildID, controller);
         }
 
-        return queue;
+        return controller;
     }
 
-    getQueue(guildID: discord.Snowflake): AudioSession | undefined {
-        return this.audioSessions.get(guildID);
+    getController(guildID: discord.Snowflake): AudioController | undefined {
+        return this.audioController.get(guildID);
+    }
+
+    removeController(guildID: discord.Snowflake): boolean {
+        return this.audioController.delete(guildID);
     }
 
     async leave(guildID: discord.Snowflake) {
-        const queue = this.audioSessions.get(guildID);
+        const queue = this.getController(guildID);
 
-        if (queue) this.audioSessions.delete(guildID);
+        if (queue) this.removeController(guildID);
 
         await this.shoukaku.leaveVoiceChannel(guildID);
     }
 }
+
+export * from "./types/track";
 
 export { Laurentina };

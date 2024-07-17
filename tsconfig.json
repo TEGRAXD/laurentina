@@ -4,6 +4,11 @@
       "module": "ES2022",
       "moduleResolution": "Bundler",
       "outDir": "dist",
+      "paths": {                                           /* Specify a set of entries that re-map imports to additional lookup locations. */
+        "@types/*": ["./@types/*"],
+      },
+      "typeRoots": ["./node_modules/types", "/@types"],    /* Specify multiple folders that act like './node_modules/@types'. */
+      "types": [],     
       "declaration": true,
       "declarationDir": "./dist/types",
       "strict": true,
@@ -11,6 +16,6 @@
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "@types/**/*"],
     "exclude": ["node_modules"]
 }
