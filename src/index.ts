@@ -55,7 +55,6 @@ class AudioController extends EventEmitter {
         this.add(track, addToQueueCallback);
 
         if (!this.playing) {
-            console.log("[Not Playing Anything] No track is currently playing.");
             await this.playNext(playCallback);
         }
     }
@@ -86,9 +85,6 @@ class AudioController extends EventEmitter {
 
         try {
             await this.player.playTrack({ track: this.currentTrack.encoded });
-
-            console.log(`[Playing track] ${this.currentTrack.info.title}`);
-            console.log(`[Requested by] ${this.currentTrack.requestedBy}`);
 
             if (callback) await callback(this.currentTrack);
 
@@ -168,13 +164,9 @@ class AudioController extends EventEmitter {
      * @returns void
      */
     add(track: shoukaku.Track, callback?: (track: shoukaku.Track) => Promise<void>): void {
-        console.log("[Pushing track to queue]");
-
         this.queue.push(track);
 
         if (callback) callback(track);
-
-        console.log(this.queue.map((t) => t.info.title));
     }
 
     /**
@@ -258,7 +250,6 @@ class AudioController extends EventEmitter {
      * @returns void
      */
     private clearTimer() {
-        console.log("[Clear timer]");
         if (this.timeout) {
             clearTimeout(this.timeout);
             this.timeout = null;
