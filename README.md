@@ -23,7 +23,7 @@ Laurentina is audio controller and queue wrapper for Shoukaku and Discord.js to 
 - Queue
 
 ## Status
-0.0.1
+1.0.0
 
 
 ## Contributor
