@@ -1,6 +1,6 @@
 {
   "name": "laurentina",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Audio controller and queue wrapper for Shoukaku and Discord.js to manage music playback.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -43,7 +43,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TEGRAXD/laurentina.git"
+    "url": "git+https://github.com/TEGRAXD/laurentina.git"
   },
   "engines": {
     "node": ">=18.0.0",

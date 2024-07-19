@@ -276,16 +276,6 @@ class Laurentina {
         this.client = client;
         this.shoukaku = shoukaku;
         this.audioController = new Map<string, AudioController>();
-
-        // Whether to resume a connection on disconnect to Lavalink (Server Side)
-        // Default: false
-        try {
-            this.shoukaku.options.resume = true;
-        } catch (error) {
-            if (error instanceof TypeError) {
-                console.error(`TypeError: Shoukaku are not initialized properly. ${error.message}`);
-            }
-        }
     }
 
     async join(
