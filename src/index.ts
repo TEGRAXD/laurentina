@@ -3,6 +3,12 @@ import discord from "discord.js";
 import shoukaku from "shoukaku";
 import { LavalinkNode } from "./types/lavalink_node";
 
+enum PlaybackState {
+    PLAYING = "playing",
+    PAUSED = "paused",
+    STOPPED = "stopped",
+}
+
 class AudioController extends EventEmitter {
     private shoukaku: shoukaku.Shoukaku;
     player: shoukaku.Player;
@@ -10,7 +16,7 @@ class AudioController extends EventEmitter {
     channelID: discord.Snowflake;
     textChannel: discord.Snowflake;
     private queue: shoukaku.Track[];
-    playing: boolean;
+    state: PlaybackState;
     currentTrack: shoukaku.Track | null;
     loop: "none" | "single" | "queue";
     private timeout: NodeJS.Timeout | null;
@@ -30,7 +36,7 @@ class AudioController extends EventEmitter {
         this.channelID = channelID;
         this.textChannel = textChannelID;
         this.queue = [];
-        this.playing = false;
+        this.state = PlaybackState.STOPPED;
         this.currentTrack = null;
         this.loop = "none";
         this.timeout = null;
@@ -54,7 +60,8 @@ class AudioController extends EventEmitter {
 
         this.add(track, addToQueueCallback);
 
-        if (!this.playing) {
+        // if (!this.playing) {
+        if (this.state === PlaybackState.STOPPED) {
             await this.playNext(playCallback);
         }
     }
@@ -65,20 +72,20 @@ class AudioController extends EventEmitter {
      */
     private async playNext(callback?: (track: shoukaku.Track) => Promise<void>): Promise<void> {
         if (!this.player) {
-            this.playing = false;
+            this.state = PlaybackState.STOPPED;
             throw new Error("No player available");
         }
 
         const next = this.queue.shift();
 
         if (!next) {
-            this.playing = false;
+            this.state = PlaybackState.STOPPED;
             this.currentTrack = null;
             this.startTimer();
             return;
         }
 
-        this.playing = true;
+        this.state = PlaybackState.PLAYING;
         this.currentTrack = next;
 
         this.clearTimer();
@@ -106,7 +113,9 @@ class AudioController extends EventEmitter {
             });
         } catch (error) {
             console.error(error);
-            this.playing = false;
+            // this.playing = false;
+
+            this.state = PlaybackState.STOPPED;
             this.currentTrack = null;
             await this.playNext(); // Move to the next track in case of error
         }
@@ -173,9 +182,16 @@ class AudioController extends EventEmitter {
      * Skip the current track
      * @returns void
      */
-    skip() {
+    async skip(callback?: (track: shoukaku.Track) => Promise<void>): Promise<void> {
         if (this.player) {
+            this.state = PlaybackState.STOPPED;
             this.player.stopTrack();
+
+            if (callback && this.currentTrack) await callback(this.currentTrack);
+
+            this.currentTrack = null;
+
+            await this.playNext();
         }
     }
 
@@ -184,7 +200,8 @@ class AudioController extends EventEmitter {
      * @returns void
      */
     pause() {
-        if (this.player) {
+        if (this.state == PlaybackState.PLAYING && this.player) {
+            this.state = PlaybackState.PAUSED;
             this.player.setPaused(true);
         }
     }
@@ -194,7 +211,8 @@ class AudioController extends EventEmitter {
      * @returns void
      */
     resume() {
-        if (this.player) {
+        if (this.state == PlaybackState.PAUSED && this.player) {
+            this.state = PlaybackState.PLAYING;
             this.player.setPaused(false);
         }
     }
@@ -205,6 +223,7 @@ class AudioController extends EventEmitter {
      */
     stop() {
         if (this.player) {
+            this.state = PlaybackState.STOPPED;
             this.player.stopTrack();
         }
     }
@@ -233,6 +252,14 @@ class AudioController extends EventEmitter {
      */
     getQueue() {
         return this.queue;
+    }
+
+    /**
+     * Clear the queue
+     * @returns void
+     */
+    clearQueue() {
+        this.queue = [];
     }
 
     /**
@@ -327,4 +354,4 @@ class Laurentina {
 
 export * from "./types/track";
 
-export { Laurentina };
+export { Laurentina, PlaybackState };
