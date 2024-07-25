@@ -39,7 +39,7 @@ const nodes = [
     {
         "name": "Node 1",
         "url": "localhost:2333",
-        "auth": "p4S5w()12D",
+        "auth": "the_unchained",
     }
 ];
 
@@ -95,8 +95,9 @@ if (!result?.length) return
 const track_one = result.shift();
 const track_two = result.shift();
 
-// Calling `play` multiple time will automatically add it to queue
 controller.play(track_one);
+
+// Calling `play` multiple time will automatically add it to queue
 controller.play(track_two);
 ```
 <br/>
