@@ -1,16 +1,16 @@
 # Laurentina
 
 [![Build](https://img.shields.io/github/actions/workflow/status/TEGRAXD/laurentina/tests.yml)](https://github.com/TEGRAXD/laurentina)
-[![Version](https://img.shields.io/badge/version-1.0.1-blue)](https://www.npmjs.com/package/laurentina)
+[![Version](https://img.shields.io/badge/version-1.0.2-blue)](https://www.npmjs.com/package/laurentina)
 [![Github Stars](https://img.shields.io/github/stars/TEGRAXD/Laurentina?style=flat-square)](https://github.com/TEGRAXD/laurentina)
 [![License](https://img.shields.io/github/license/TEGRAXD/laurentina)](https://github.com/TEGRAXD/laurentina?tab=readme-ov-file#license)
 
-Laurentina is audio controller and queue wrapper for Shoukaku and Discord.js to manage music playback.
+Laurentina is Audio Controller and Queue Wrapper for Shoukaku and Discord.js to Manage Music Playback.
 
 ![](static/laurentina.png)
 > © Arknights
 
-## Feature
+## Features
 ### Audio controller and Queue Wrapper
 - Play
 - Search
@@ -19,12 +19,163 @@ Laurentina is audio controller and queue wrapper for Shoukaku and Discord.js to 
 - Pause
 - Resume
 - Stop
-- Loop
-- Queue
+- Get Queue
+- Clear Queue
+
+## Download
+Get the latest package from [NPM](https://www.npmjs.com/package/laurentina).
 
 ## Version
-1.0.1
+1.0.2
 
+## Usage
+- Binding Laurentina
+```js
+import { Client, Message } from "discord.js"
+import { Shoukaku, Connectors } from "shoukaku";
+import { Laurentina } from "laurentina";
+
+const nodes = [
+    {
+        "name": "Node 1",
+        "url": "localhost:2333",
+        "auth": "the_unchained",
+    }
+];
+
+const client = new Client({
+    intents: [
+        // ...
+    ]
+});
+
+const shoukaku = new Shoukaku(new Connectors.DisordJS(client), nodes);
+const laurentina = new Laurentina(client, shoukaku, nodes);
+
+// Bind shoukaku and laurentina to client
+client.shoukaku = shoukaku;
+client.laurentina = laurentina;
+
+client.login("token");
+```
+<br/>
+
+- Play a song
+```js
+let controller = client.laurentina.getController("guildID");
+
+if (!controller) {
+    controller = await client.laurentina.join(
+        "guildID",
+        "voiceChannelID", // Voice channel where the user connected
+        "textChannelID", // Text channel where the command sent
+    ),
+}
+
+const result = await controller.search("scsearch", "Gojimaji-P - おちゃめ機能");
+
+if (!result?.length) return
+
+const track = result.shift();
+
+await controller.play(track);
+```
+<br/>
+
+- Add to Queue (Auto)
+```js
+let controller = client.laurentina.getController("guildID");
+
+if (!controller) return;
+
+const result = await controller.search("ytsearch", "Kobo Kanaeru - Entah");
+
+if (!result?.length) return
+
+const track_one = result.shift();
+const track_two = result.shift();
+
+controller.play(track_one);
+
+// Calling `play` multiple time will automatically add it to queue
+controller.play(track_two);
+```
+<br/>
+
+- Add to Queue (Manual)
+```js
+let controller = client.laurentina.getController("guildID");
+
+if (!controller) return;
+
+const result = await controller.search("ytseach", "Roshidere - Kawaikute gomen");
+
+if (!result?.length) return
+
+const track = result.shift();
+
+controller.add(track);
+```
+<br/>
+
+- Skip
+```js
+const controller = client.laurentina.getController("guildID");
+
+if (!controller) return;
+
+await controller.skip();
+```
+<br/>
+
+- Pause
+```js
+const controller = client.laurentina.getController("guildID");
+
+if (!controller) return;
+
+controller.pause();
+```
+<br/>
+
+- Resume
+```js
+const controller = client.laurentina.getController("guildID");
+
+if (!controller) return;
+
+controller.resume();
+```
+<br/>
+
+- Stop
+```js
+const controller = client.laurentina.getController("guildID");
+
+if (!controller) return;
+
+controller.stop();
+```
+<br/>
+
+- Get Queue
+```js
+const controller = client.laurentina.getController("guildID");
+
+if (!controller) return;
+
+const queue = controller.getQueue();
+```
+<br/>
+
+- Clear Queue
+```js
+const controller = client.laurentina.getController("guildID");
+
+if (!controller) return;
+
+controller.clearQueue();
+```
 
 ## Contributor
 ```
