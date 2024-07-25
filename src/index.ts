@@ -9,6 +9,12 @@ enum PlaybackState {
     STOPPED = "stopped",
 }
 
+enum LoopMode {
+    NONE = "none",
+    SINGLE = "single",
+    QUEUE = "queue",
+}
+
 class AudioController extends EventEmitter {
     private shoukaku: shoukaku.Shoukaku;
     player: shoukaku.Player;
@@ -18,7 +24,7 @@ class AudioController extends EventEmitter {
     private queue: shoukaku.Track[];
     state: PlaybackState;
     currentTrack: shoukaku.Track | null;
-    // loop: "none" | "single" | "queue";
+    loop: LoopMode;
     private timeout: NodeJS.Timeout | null;
 
     constructor(
@@ -38,7 +44,7 @@ class AudioController extends EventEmitter {
         this.queue = [];
         this.state = PlaybackState.STOPPED;
         this.currentTrack = null;
-        // this.loop = "none";
+        this.loop = LoopMode.NONE;
         this.timeout = null;
 
         this.startTimer();
@@ -95,18 +101,18 @@ class AudioController extends EventEmitter {
             if (callback) await callback(this.currentTrack);
 
             this.player.once("end", async () => {
-                // switch (this.loop) {
-                //     case "none":
-                //         break;
-                //     case "single":
-                //         if (!this.currentTrack) return;
-                //         this.queue.unshift(this.currentTrack);
-                //         break;
-                //     case "queue":
-                //         if (!this.currentTrack) return;
-                //         this.queue.push(this.currentTrack);
-                //         break;
-                // }
+                switch (this.loop) {
+                    case LoopMode.NONE:
+                        break;
+                    case LoopMode.SINGLE:
+                        if (!this.currentTrack) return;
+                        this.queue.unshift(this.currentTrack);
+                        break;
+                    case LoopMode.QUEUE:
+                        if (!this.currentTrack) return;
+                        this.queue.push(this.currentTrack);
+                        break;
+                }
 
                 await this.playNext(callback);
             });
@@ -225,23 +231,25 @@ class AudioController extends EventEmitter {
         }
     }
 
-    // /**
-    //  * Toggle the loop mode
-    //  * @returns void
-    //  */
-    // toggleLoop() {
-    //     switch (this.loop) {
-    //         case "none":
-    //             this.loop = "single";
-    //             break;
-    //         case "single":
-    //             this.loop = "queue";
-    //             break;
-    //         case "queue":
-    //             this.loop = "none";
-    //             break;
-    //     }
-    // }
+    /**
+     * Toggle the loop mode
+     * @returns void
+     */
+    toggleLoop(): LoopMode {
+        switch (this.loop) {
+            case LoopMode.NONE:
+                this.loop = LoopMode.SINGLE;
+                break;
+            case LoopMode.SINGLE:
+                this.loop = LoopMode.QUEUE;
+                break;
+            case LoopMode.QUEUE:
+                this.loop = LoopMode.NONE;
+                break;
+        }
+
+        return this.loop;
+    }
 
     /**
      * Get the current queue
@@ -351,4 +359,4 @@ class Laurentina {
 
 export * from "./types/track";
 
-export { Laurentina, PlaybackState };
+export { Laurentina, PlaybackState, LoopMode };
