@@ -32,7 +32,7 @@ Get the latest package from [NPM](https://www.npmjs.com/package/laurentina).
 ## Usage
 - Binding Laurentina
 ```js
-import { Client, Message } from "discord.js"
+import { Client, Message } from "discord.js";
 import { Shoukaku, Connectors } from "shoukaku";
 import { Laurentina } from "laurentina";
 
