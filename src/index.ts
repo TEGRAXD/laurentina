@@ -18,7 +18,7 @@ class AudioController extends EventEmitter {
     private queue: shoukaku.Track[];
     state: PlaybackState;
     currentTrack: shoukaku.Track | null;
-    loop: "none" | "single" | "queue";
+    // loop: "none" | "single" | "queue";
     private timeout: NodeJS.Timeout | null;
 
     constructor(
@@ -38,7 +38,7 @@ class AudioController extends EventEmitter {
         this.queue = [];
         this.state = PlaybackState.STOPPED;
         this.currentTrack = null;
-        this.loop = "none";
+        // this.loop = "none";
         this.timeout = null;
 
         this.startTimer();
@@ -60,7 +60,6 @@ class AudioController extends EventEmitter {
 
         this.add(track, addToQueueCallback);
 
-        // if (!this.playing) {
         if (this.state === PlaybackState.STOPPED) {
             await this.playNext(playCallback);
         }
@@ -96,28 +95,26 @@ class AudioController extends EventEmitter {
             if (callback) await callback(this.currentTrack);
 
             this.player.once("end", async () => {
-                switch (this.loop) {
-                    case "none":
-                        break;
-                    case "single":
-                        if (!this.currentTrack) return;
-                        this.queue.unshift(this.currentTrack);
-                        break;
-                    case "queue":
-                        if (!this.currentTrack) return;
-                        this.queue.push(this.currentTrack);
-                        break;
-                }
+                // switch (this.loop) {
+                //     case "none":
+                //         break;
+                //     case "single":
+                //         if (!this.currentTrack) return;
+                //         this.queue.unshift(this.currentTrack);
+                //         break;
+                //     case "queue":
+                //         if (!this.currentTrack) return;
+                //         this.queue.push(this.currentTrack);
+                //         break;
+                // }
 
                 await this.playNext(callback);
             });
         } catch (error) {
             console.error(error);
-            // this.playing = false;
-
             this.state = PlaybackState.STOPPED;
             this.currentTrack = null;
-            await this.playNext(); // Move to the next track in case of error
+            await this.playNext();
         }
     }
 
@@ -228,23 +225,23 @@ class AudioController extends EventEmitter {
         }
     }
 
-    /**
-     * Toggle the loop mode
-     * @returns void
-     */
-    toggleLoop() {
-        switch (this.loop) {
-            case "none":
-                this.loop = "single";
-                break;
-            case "single":
-                this.loop = "queue";
-                break;
-            case "queue":
-                this.loop = "none";
-                break;
-        }
-    }
+    // /**
+    //  * Toggle the loop mode
+    //  * @returns void
+    //  */
+    // toggleLoop() {
+    //     switch (this.loop) {
+    //         case "none":
+    //             this.loop = "single";
+    //             break;
+    //         case "single":
+    //             this.loop = "queue";
+    //             break;
+    //         case "queue":
+    //             this.loop = "none";
+    //             break;
+    //     }
+    // }
 
     /**
      * Get the current queue
