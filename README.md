@@ -1,7 +1,7 @@
 # Laurentina
 
 [![Build](https://img.shields.io/github/actions/workflow/status/TEGRAXD/laurentina/tests.yml)](https://github.com/TEGRAXD/laurentina)
-[![Version](https://img.shields.io/badge/version-1.0.2-blue)](https://www.npmjs.com/package/laurentina)
+[![Version](https://img.shields.io/badge/version-1.0.3-blue)](https://www.npmjs.com/package/laurentina)
 [![Github Stars](https://img.shields.io/github/stars/TEGRAXD/Laurentina?style=flat-square)](https://github.com/TEGRAXD/laurentina)
 [![License](https://img.shields.io/github/license/TEGRAXD/laurentina)](https://github.com/TEGRAXD/laurentina?tab=readme-ov-file#license)
 
@@ -19,6 +19,7 @@ Laurentina is Audio Controller and Queue Wrapper for Shoukaku and Discord.js to 
 - Pause
 - Resume
 - Stop
+- Loop
 - Get Queue
 - Clear Queue
 
@@ -26,12 +27,12 @@ Laurentina is Audio Controller and Queue Wrapper for Shoukaku and Discord.js to 
 Get the latest package from [NPM](https://www.npmjs.com/package/laurentina).
 
 ## Version
-1.0.2
+1.0.3
 
 ## Usage
 - Binding Laurentina
 ```js
-import { Client, Message } from "discord.js"
+import { Client, Message } from "discord.js";
 import { Shoukaku, Connectors } from "shoukaku";
 import { Laurentina } from "laurentina";
 
@@ -58,7 +59,6 @@ client.laurentina = laurentina;
 
 client.login("token");
 ```
-<br/>
 
 - Play a song
 ```js
@@ -74,13 +74,12 @@ if (!controller) {
 
 const result = await controller.search("scsearch", "Gojimaji-P - おちゃめ機能");
 
-if (!result?.length) return
+if (!result?.length) return;
 
 const track = result.shift();
 
 await controller.play(track);
 ```
-<br/>
 
 - Add to Queue (Auto)
 ```js
@@ -90,7 +89,7 @@ if (!controller) return;
 
 const result = await controller.search("ytsearch", "Kobo Kanaeru - Entah");
 
-if (!result?.length) return
+if (!result?.length) return;
 
 const track_one = result.shift();
 const track_two = result.shift();
@@ -100,7 +99,6 @@ controller.play(track_one);
 // Calling `play` multiple time will automatically add it to queue
 controller.play(track_two);
 ```
-<br/>
 
 - Add to Queue (Manual)
 ```js
@@ -110,13 +108,12 @@ if (!controller) return;
 
 const result = await controller.search("ytseach", "Roshidere - Kawaikute gomen");
 
-if (!result?.length) return
+if (!result?.length) return;
 
 const track = result.shift();
 
 controller.add(track);
 ```
-<br/>
 
 - Skip
 ```js
@@ -126,7 +123,6 @@ if (!controller) return;
 
 await controller.skip();
 ```
-<br/>
 
 - Pause
 ```js
@@ -136,7 +132,6 @@ if (!controller) return;
 
 controller.pause();
 ```
-<br/>
 
 - Resume
 ```js
@@ -146,7 +141,6 @@ if (!controller) return;
 
 controller.resume();
 ```
-<br/>
 
 - Stop
 ```js
@@ -156,7 +150,15 @@ if (!controller) return;
 
 controller.stop();
 ```
-<br/>
+
+- Loop
+```js
+const controller = hannah.laurentina.getController("guildID");
+
+if (!controller) return;
+
+const loopMode = controller.toggleLoop();
+```
 
 - Get Queue
 ```js
@@ -166,7 +168,6 @@ if (!controller) return;
 
 const queue = controller.getQueue();
 ```
-<br/>
 
 - Clear Queue
 ```js
