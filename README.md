@@ -153,11 +153,20 @@ controller.stop();
 
 - Loop
 ```js
-const controller = hannah.laurentina.getController("guildID");
+const controller = client.laurentina.getController("guildID");
 
 if (!controller) return;
 
 const loopMode = controller.toggleLoop();
+```
+
+- Shuffle
+```js
+const controller = client.laurentina.getController("guildID");
+
+if (!controller) return;
+
+const shuffleMode = controller.shuffleMode();
 ```
 
 - Get Queue
