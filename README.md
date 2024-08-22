@@ -28,7 +28,7 @@ Laurentina is Audio Controller and Queue Wrapper for Shoukaku and Discord.js to 
 Get the latest package from [NPM](https://www.npmjs.com/package/laurentina).
 
 ## Version
-1.0.4
+1.0.5
 
 ## Usage
 - Binding Laurentina
