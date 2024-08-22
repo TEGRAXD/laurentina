@@ -166,7 +166,7 @@ const controller = client.laurentina.getController("guildID");
 
 if (!controller) return;
 
-const shuffleMode = controller.shuffleMode();
+const shuffleMode = controller.toggleShuffle();
 ```
 
 - Get Queue
