@@ -15,6 +15,11 @@ enum LoopMode {
     QUEUE = "queue",
 }
 
+enum ShuffleMode {
+    OFF = "off",
+    ON = "on",
+}
+
 class AudioController extends EventEmitter {
     private shoukaku: shoukaku.Shoukaku;
     player: shoukaku.Player;
@@ -25,6 +30,7 @@ class AudioController extends EventEmitter {
     state: PlaybackState;
     currentTrack: shoukaku.Track | null;
     loop: LoopMode;
+    shuffle: ShuffleMode;
     private timeout: NodeJS.Timeout | null;
 
     constructor(
@@ -45,6 +51,7 @@ class AudioController extends EventEmitter {
         this.state = PlaybackState.STOPPED;
         this.currentTrack = null;
         this.loop = LoopMode.NONE;
+        this.shuffle = ShuffleMode.OFF;
         this.timeout = null;
 
         this.startTimer();
@@ -81,7 +88,13 @@ class AudioController extends EventEmitter {
             throw new Error("No player available");
         }
 
-        const next = this.queue.shift();
+        let next = null;
+
+        if (this.shuffle === ShuffleMode.ON) {
+            next = this.queue.splice(Math.floor(Math.random() * this.queue.length), 1).shift();
+        } else {
+            next = this.queue.shift();
+        }
 
         if (!next) {
             this.state = PlaybackState.STOPPED;
@@ -232,6 +245,16 @@ class AudioController extends EventEmitter {
     }
 
     /**
+     * Set the loop mode
+     * @param mode The loop mode to set
+     * @returns LoopMode
+     */
+    setLoop(mode: LoopMode): LoopMode {
+        this.loop = mode;
+        return this.loop;
+    }
+
+    /**
      * Toggle the loop mode
      * @returns void
      */
@@ -249,6 +272,33 @@ class AudioController extends EventEmitter {
         }
 
         return this.loop;
+    }
+
+    /**
+     * Set the shuffle mode
+     * @param mode The shuffle mode to set
+     * @returns ShuffleMode
+     */
+    setShuffle(mode: ShuffleMode): ShuffleMode {
+        this.shuffle = mode;
+        return this.shuffle;
+    }
+
+    /**
+     * Toggle the shuffle mode
+     * @returns void
+     */
+    toggleShuffle(): ShuffleMode {
+        switch (this.shuffle) {
+            case ShuffleMode.OFF:
+                this.shuffle = ShuffleMode.ON;
+                break;
+            case ShuffleMode.ON:
+                this.shuffle = ShuffleMode.OFF;
+                break;
+        }
+
+        return this.shuffle;
     }
 
     /**
@@ -359,4 +409,4 @@ class Laurentina {
 
 export * from "./types/track";
 
-export { Laurentina, PlaybackState, LoopMode };
+export { Laurentina, PlaybackState, LoopMode, ShuffleMode };
