@@ -1,6 +1,6 @@
 {
   "name": "laurentina",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Audio controller and queue wrapper for Shoukaku and Discord.js to manage music playback.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -23,9 +23,9 @@
     "dist/"
   ],
   "dependencies": {
-    "discord-api-types": "^0.37.91",
+    "discord-api-types": "^0.37.97",
     "discord.js": "^14.15.3",
-    "shoukaku": "^4.0.1"
+    "shoukaku": "^4.1.0"
   },
   "devDependencies": {
     "@rollup/plugin-babel": "^6.0.4",

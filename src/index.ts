@@ -109,7 +109,7 @@ class AudioController extends EventEmitter {
         this.clearTimer();
 
         try {
-            await this.player.playTrack({ track: this.currentTrack.encoded });
+            await this.player.playTrack({ track: { encoded: this.currentTrack.encoded } })
 
             if (callback) await callback(this.currentTrack);
 
