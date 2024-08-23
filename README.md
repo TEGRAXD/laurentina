@@ -1,7 +1,7 @@
 # Laurentina
 
 [![Build](https://img.shields.io/github/actions/workflow/status/TEGRAXD/laurentina/tests.yml)](https://github.com/TEGRAXD/laurentina)
-[![Version](https://img.shields.io/badge/version-1.0.4-blue)](https://www.npmjs.com/package/laurentina)
+[![Version](https://img.shields.io/badge/version-1.0.5-blue)](https://www.npmjs.com/package/laurentina)
 [![Github Stars](https://img.shields.io/github/stars/TEGRAXD/Laurentina?style=flat-square)](https://github.com/TEGRAXD/laurentina)
 [![License](https://img.shields.io/github/license/TEGRAXD/laurentina)](https://github.com/TEGRAXD/laurentina?tab=readme-ov-file#license)
 
@@ -107,7 +107,7 @@ let controller = client.laurentina.getController("guildID");
 
 if (!controller) return;
 
-const result = await controller.search("ytseach", "Roshidere - Kawaikute gomen");
+const result = await controller.search("ytsearch", "Roshidere - Kawaikute gomen");
 
 if (!result?.length) return;
 
