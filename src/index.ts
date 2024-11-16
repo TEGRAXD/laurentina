@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import discord from "discord.js";
+import * as discord from "discord.js";
 import shoukaku from "shoukaku";
 import { LavalinkNode } from "./types/lavalink_node";
 
@@ -376,7 +376,7 @@ class Laurentina {
                 guildId: guildID,
                 channelId: voiceChannelID,
                 shardId: 0,
-                deaf: true,
+                // deaf: true,
             });
         }
 

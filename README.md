@@ -1,7 +1,7 @@
 # Laurentina
 
 [![Build](https://img.shields.io/github/actions/workflow/status/TEGRAXD/laurentina/tests.yml)](https://github.com/TEGRAXD/laurentina)
-[![Version](https://img.shields.io/badge/version-1.0.5-blue)](https://www.npmjs.com/package/laurentina)
+[![Version](https://img.shields.io/badge/version-1.0.6-blue)](https://www.npmjs.com/package/laurentina)
 [![Github Stars](https://img.shields.io/github/stars/TEGRAXD/Laurentina?style=flat-square)](https://github.com/TEGRAXD/laurentina)
 [![License](https://img.shields.io/github/license/TEGRAXD/laurentina)](https://github.com/TEGRAXD/laurentina?tab=readme-ov-file#license)
 
@@ -28,7 +28,7 @@ Laurentina is Audio Controller and Queue Wrapper for Shoukaku and Discord.js to 
 Get the latest package from [NPM](https://www.npmjs.com/package/laurentina).
 
 ## Version
-1.0.5
+1.0.6
 
 ## Usage
 - Binding Laurentina
