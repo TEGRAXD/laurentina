@@ -239,8 +239,11 @@ class AudioController extends EventEmitter {
      */
     stop() {
         if (this.player) {
+            this.loop = LoopMode.NONE;
+            this.shuffle = ShuffleMode.OFF;
             this.state = PlaybackState.STOPPED;
             this.player.stopTrack();
+            this.queue = [];
         }
     }
 
@@ -363,7 +366,8 @@ class Laurentina {
     async join(
         guildID?: discord.Snowflake,
         voiceChannelID?: discord.Snowflake,
-        textChannelID?: discord.Snowflake
+        textChannelID?: discord.Snowflake,
+        deaf?: boolean
     ): Promise<AudioController> {
         if (!guildID) throw new Error("Guild ID is required");
         if (!voiceChannelID) throw new Error("Voice Channel ID is required");
@@ -376,7 +380,7 @@ class Laurentina {
                 guildId: guildID,
                 channelId: voiceChannelID,
                 shardId: 0,
-                // deaf: true,
+                deaf: deaf ?? false,
             });
         }
 
