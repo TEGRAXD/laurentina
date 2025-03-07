@@ -351,14 +351,10 @@ class AudioController extends EventEmitter {
     }
 }
 
-export type { AudioController };
-
 class Laurentina {
-    private client: discord.Client;
     shoukaku: shoukaku.Shoukaku;
     private audioController: Map<string, AudioController>;
-    constructor(client: discord.Client, shoukaku: shoukaku.Shoukaku, lavalinkNodes: LavalinkNode[]) {
-        this.client = client as discord.Client;
+    constructor(shoukaku: shoukaku.Shoukaku, lavalinkNodes: LavalinkNode[]) {
         this.shoukaku = shoukaku;
         this.audioController = new Map<string, AudioController>();
     }
@@ -413,4 +409,4 @@ class Laurentina {
 
 export * from "./types/track";
 
-export { Laurentina, PlaybackState, LoopMode, ShuffleMode };
+export { Laurentina, AudioController, PlaybackState, LoopMode, ShuffleMode };

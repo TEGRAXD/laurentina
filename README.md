@@ -52,7 +52,7 @@ const client = new Client({
 });
 
 const shoukaku = new Shoukaku(new Connectors.DiscordJS(client), nodes);
-const laurentina = new Laurentina(client, shoukaku, nodes);
+const laurentina = new Laurentina(shoukaku, nodes);
 
 // Bind shoukaku and laurentina to client
 client.shoukaku = shoukaku;

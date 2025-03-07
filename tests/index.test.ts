@@ -1,23 +1,23 @@
-import { Client, TextChannel } from "discord.js";
-import { Player, Shoukaku } from "shoukaku";
+import { Client } from "discord.js";
+import { Shoukaku } from "shoukaku";
 import { Laurentina } from "../src";
 
-// Mocks
-// const mockGuildID = '1234567890';
-// const mockChannelID = '0987654321';
-// const mockTextChannel = {} as TextChannel;
-// const mockPlayer = {} as Player;
+const mockGuildID = '1234567890';
+const mockChannelID = '0987654321';
+const mockTextChannel = '1234567890'
 
-interface CustomClient extends Client {
-    shoukaku: Shoukaku;
-    laurentina: Laurentina;
+declare module "discord.js" {
+    interface Client {
+        laurentina: Laurentina;
+        shoukaku: Shoukaku;
+    }
 }
 
-const client = {} as CustomClient;
-const mockShoukaku = {} as Shoukaku;
+const client = {} as Client;
 const mockLavalinkNodes = {} as { name: string; url: string; auth: string }[];
+const mockShoukaku = {} as Shoukaku;
 
-const laurentina = new Laurentina(client, mockShoukaku, mockLavalinkNodes);
+const laurentina = new Laurentina(mockShoukaku, mockLavalinkNodes);
 
 client.shoukaku = mockShoukaku;
 client.laurentina = laurentina;
@@ -28,14 +28,19 @@ describe("Laurentina", () => {
     });
 
     it("should be an instance of Laurentina", () => {
-        expect(laurentina).toBeInstanceOf(Laurentina);
-    });
-
-    it("should have a property 'client'", () => {
-        expect(laurentina.client).toBe(client);
+        expect(client.laurentina).toBeInstanceOf(Laurentina);
     });
 
     it("should have a property 'shoukaku'", () => {
-        expect(laurentina.shoukaku).toBe(mockShoukaku);
+        expect(client.laurentina.shoukaku).toBe(mockShoukaku);
+    });
+
+    it("should return 'false' if the guild ID for 'removeController' is not found", () => {
+        expect(client.laurentina.removeController(mockGuildID)).toBeFalsy();
+    });
+
+    it("should return 'undefined' if the guild ID for 'AudioController' is not found", () => {
+        const audioController = laurentina.getController(mockGuildID);
+        expect(audioController).toBeUndefined();
     });
 });
