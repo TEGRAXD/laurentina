@@ -354,11 +354,11 @@ class AudioController extends EventEmitter {
 export type { AudioController };
 
 class Laurentina {
-    client: discord.Client;
+    private client: discord.Client;
     shoukaku: shoukaku.Shoukaku;
     private audioController: Map<string, AudioController>;
     constructor(client: discord.Client, shoukaku: shoukaku.Shoukaku, lavalinkNodes: LavalinkNode[]) {
-        this.client = client;
+        this.client = client as discord.Client;
         this.shoukaku = shoukaku;
         this.audioController = new Map<string, AudioController>();
     }
