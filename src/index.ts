@@ -321,7 +321,7 @@ class AudioController extends EventEmitter {
     }
 
     /**
-     * start the timer to leave the voice channel after 5 minutes of inactivity
+     * Start the timer to leave the voice channel after 5 minutes of inactivity
      * @returns void
      */
     private startTimer() {
